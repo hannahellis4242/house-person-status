@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Start</title>
+  </head>
+  <body>
+    <ul>
+      {% for item in items %}
+      <li>{{ item }}</li>
+      {% else %}
+      <li>This would display if the 'item' collection were empty</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

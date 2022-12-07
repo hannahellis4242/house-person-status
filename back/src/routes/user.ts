@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
-const url = "mongodb://db:27017";
+const dbHost = process.env.DB_HOST || "localhost";
+const url = `mongodb://${dbHost}:27017`;
 const client = new MongoClient(url);
 
 interface PostData {
@@ -20,42 +21,34 @@ userRoute.post("/", async (req, res) => {
   console.log("data :", data);
   if (data) {
     await client.connect();
-    console.log("Connected successfully to server");
     const db = client.db("notice-board");
-    console.log("database");
     const collection = db.collection("notes");
-    console.log("collection");
     const value = await collection.insertOne(data);
-    console.log("value : ", value);
     client.close();
-    console.log("closed");
     res.json(value.insertedId);
   } else {
     res.sendStatus(400);
   }
 });
-/*
+
 //read
 userRoute.get("/", async (req, res) => {
-  const { id, name } = req.query;
+  const { id } = req.query;
   if (id) {
-    const value = data.find(({ person }) => id === person.id);
-    if (value) {
-      res.json(value);
-    } else {
-      res.sendStatus(404);
-    }
-  } else if (name) {
-    const value = data.find(({ person }) => name === person.name);
+    await client.connect();
+    const db = client.db("notice-board");
+    const collection = db.collection("notes");
+    const value = await collection.findOne({ _id: new ObjectId(id as string) });
+    client.close();
     if (value) {
       res.json(value);
     } else {
       res.sendStatus(404);
     }
   } else {
-    res.json(data);
+    res.sendStatus(400);
   }
-});*/
+});
 //update
 //delete
 /*userRoute.delete("/", (req, res) => {

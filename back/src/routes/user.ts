@@ -52,7 +52,7 @@ userRoute.get("/", async (req, res) => {
     const collection = db.collection("notes");
     const value = await collection.find(data).toArray();
     client.close();
-    if (value) {
+    if (value.length !== 0) {
       res.json(value);
     } else {
       res.sendStatus(404);
@@ -63,18 +63,17 @@ userRoute.get("/", async (req, res) => {
 });
 //update
 //delete
-/*userRoute.delete("/", (req, res) => {
+userRoute.delete("/", async (req, res) => {
   const { id } = req.body;
   if (id) {
-    const item = data.find(({ person }) => id === person.id);
-    if (item) {
-      data = data.filter((user) => user !== item);
-      res.json(item);
-    } else {
-      res.sendStatus(404);
-    }
+    await client.connect();
+    const db = client.db("notice-board");
+    const collection = db.collection("notes");
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    client.close();
+    res.sendStatus(result.deletedCount !== 0 ? 200 : 404);
   } else {
     res.sendStatus(400);
   }
-});*/
+});
 export default userRoute;

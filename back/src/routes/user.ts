@@ -18,7 +18,6 @@ const userRoute = Router();
 //create
 userRoute.post("/", async (req, res) => {
   const data = req.body as PostData;
-  console.log("data :", data);
   if (data) {
     await client.connect();
     const db = client.db("notice-board");
@@ -33,12 +32,25 @@ userRoute.post("/", async (req, res) => {
 
 //read
 userRoute.get("/", async (req, res) => {
-  const { id } = req.query;
+  const { id, ...data } = req.query;
   if (id) {
     await client.connect();
     const db = client.db("notice-board");
     const collection = db.collection("notes");
-    const value = await collection.findOne({ _id: new ObjectId(id as string) });
+    const value = await collection
+      .find({ _id: new ObjectId(id as string) })
+      .toArray();
+    client.close();
+    if (value) {
+      res.json(value);
+    } else {
+      res.sendStatus(404);
+    }
+  } else if (data) {
+    await client.connect();
+    const db = client.db("notice-board");
+    const collection = db.collection("notes");
+    const value = await collection.find(data).toArray();
     client.close();
     if (value) {
       res.json(value);
